@@ -1,42 +1,74 @@
-# Contributing
+# Contributing Guidelines
 
-## Contributors
-
-This project was developed with contributions from:
-
-### Human Contributors
-- **Samin** ([@samin124](https://github.com/samin124)) - Project Lead, Architecture & Development
-
-### AI Contributors
-- **Claude** (Anthropic) - AI Pair Programming Assistant
-  - Assisted with project structure setup
-  - Code generation and documentation
-  - Best practices implementation
+Thank you for considering contributing to the Legal Document Q&A Assistant.
 
 ## Development Workflow
 
 ### Branch Strategy
 
-- `main` - Production-ready code
-- `feature/*` - New features
-- `fix/*` - Bug fixes
-- `docs/*` - Documentation updates
+| Branch | Purpose |
+|--------|---------|
+| `main` | Production-ready, stable code |
+| `feature/*` | New feature development |
+| `fix/*` | Bug fixes |
+| `docs/*` | Documentation updates |
+| `refactor/*` | Code improvements |
 
 ### Commit Convention
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+This project follows [Conventional Commits](https://www.conventionalcommits.org/):
 
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `docs:` - Documentation changes
-- `refactor:` - Code refactoring
-- `test:` - Test additions/changes
-- `chore:` - Maintenance tasks
+```
+<type>: <description>
+
+[optional body]
+```
+
+**Types:**
+- `feat` - New features
+- `fix` - Bug fixes
+- `docs` - Documentation changes
+- `refactor` - Code refactoring
+- `test` - Test additions or modifications
+- `chore` - Maintenance tasks
+
+**Examples:**
+```bash
+feat: Add PDF multi-document support
+fix: Resolve retrieval timeout issue
+docs: Update API configuration guide
+```
 
 ## Getting Started
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository
+2. **Clone** your fork locally
+3. **Create** a feature branch
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Develop** and test your changes
+5. **Commit** following the convention above
+6. **Push** to your fork
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+7. **Open** a Pull Request
+
+## Code Standards
+
+- Follow PEP 8 style guidelines
+- Add docstrings to functions and classes
+- Include type hints where applicable
+- Write unit tests for new functionality
+
+## Pull Request Process
+
+1. Ensure all tests pass
+2. Update documentation if needed
+3. Request review from maintainers
+4. Address feedback promptly
+
+## Questions?
+
+Open an issue for any questions or discussions.
