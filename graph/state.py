@@ -3,7 +3,8 @@ Agent State Schema
 Shared TypedDict state object across all LangGraph nodes
 """
 
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Optional, Any
+from langchain_core.documents import Document
 
 
 class AgentState(TypedDict):
@@ -16,10 +17,10 @@ class AgentState(TypedDict):
     chat_history: List[dict]
 
     # Retrieved document chunks from vector store
-    retrieved_docs: List[str]
+    retrieved_docs: List[Document]
 
     # Top-ranked chunk after reranking
-    reranked_docs: List[str]
+    reranked_docs: List[Document]
 
     # Number of retrieval retries attempted (max 2)
     retry_count: int
@@ -30,6 +31,9 @@ class AgentState(TypedDict):
     # True once user confirms clause during human review
     human_confirmed: bool
 
+    # True once user confirms web search fallback
+    web_search_confirmed: bool
+
     # Generated LLM response
     answer: str
 
@@ -38,3 +42,15 @@ class AgentState(TypedDict):
 
     # Source type: "document" or "web"
     source: str
+
+    # Uploaded documents for processing
+    uploaded_docs: List[Any]
+
+    # Vector store reference (Qdrant)
+    vector_store: Optional[Any]
+
+    # Current retrieval quality score
+    retrieval_score: float
+
+    # Detected clause type for sensitive clause routing
+    clause_type: Optional[str]
