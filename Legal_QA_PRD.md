@@ -126,7 +126,8 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 **So that** the content can be processed for retrieval.
 
 **Acceptance Criteria:**
-- PyPDFLoader successfully extracts text from standard PDF formats.
+- LlamaParse successfully extracts text from standard PDF formats with OCR support for scanned documents.
+- OCR capabilities handle image-based PDFs and scanned legal documents accurately.
 - Multi-page documents are fully parsed page by page.
 - Parsing completes without crashing on documents up to 50 pages.
 - Extracted text is available in memory for the chunking step.
@@ -154,8 +155,9 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 **So that** they can be retrieved by semantic similarity at query time.
 
 **Acceptance Criteria:**
-- Chunks are embedded using OpenAIEmbeddings or HuggingFaceEmbeddings.
-- All embedded chunks are indexed into a Chroma in-memory vector store.
+- Text chunks are embedded using Google Gemini text embeddings for semantic representation.
+- Multi-modal content (images, tables) is processed using Google multi-modal embeddings.
+- All embedded chunks are indexed into a Qdrant vector store.
 - The vector store is session-scoped and does not persist after the session ends.
 - Indexing completes within 30 seconds for documents up to 50 pages.
 - A loading indicator or status message is shown to the user during ingestion.
@@ -191,7 +193,7 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 **So that** the most relevant document content is surfaced as candidates for the answer.
 
 **Acceptance Criteria:**
-- The Retrieve node searches the Chroma vector store using the user's query.
+- The Retrieve node searches the Qdrant vector store using the user's query.
 - Top-K semantically similar chunks are returned as candidates.
 - Retrieved chunks are stored in the `retrieved_docs` state field.
 - Retrieval completes without error even when the vector store is empty.
@@ -368,18 +370,34 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 
 ## Epic 5 — Web Search Fallback
 
-**Goal:** When the uploaded document contains no relevant clause, fetch external legal context from the web to supplement the answer.
+**Goal:** When the uploaded document contains no relevant clause, ask for user confirmation before fetching external legal context from the web to supplement the answer.
+
+---
+
+### Story 5.0 — User Confirmation Before Web Search
+
+**As a** user,
+**I want to** be asked for confirmation before the system searches the web,
+**So that** I am aware when the answer will come from external sources rather than my document.
+
+**Acceptance Criteria:**
+- Before invoking web search, the system pauses and displays a confirmation prompt.
+- The prompt clearly states: *"No relevant clause found in your document. Would you like me to search the web for legal context?"*
+- Two options are presented: **Yes, search the web** and **No, skip**.
+- Selecting **Yes** proceeds to the Web Search node.
+- Selecting **No** returns a message indicating no relevant information was found in the document.
+- The user's choice is logged in the state for transparency.
 
 ---
 
 ### Story 5.1 — Tavily Web Search Integration
 
 **As a** system,
-**I want to** call the Tavily Search API when document retrieval yields no usable result,
+**I want to** call the Tavily Search API when document retrieval yields no usable result and user has confirmed,
 **So that** users receive helpful legal context even when their document doesn't cover the topic.
 
 **Acceptance Criteria:**
-- The Web Search node is only invoked after document retrieval has failed.
+- The Web Search node is only invoked after document retrieval has failed AND user has confirmed web search.
 - The Tavily Search API is called with the user's rephrased query.
 - Results are stored in `web_search_results`.
 - The API key is loaded from environment variables and never hardcoded.
@@ -572,10 +590,11 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 
 | Component | Role |
 |---|---|
-| PyPDFLoader | Loads and parses uploaded PDF documents |
+| LlamaParse | Loads and parses uploaded PDF documents with OCR support for scanned documents |
 | RecursiveCharacterTextSplitter | Splits document text into overlapping chunks |
-| OpenAIEmbeddings / HuggingFaceEmbeddings | Converts text chunks to dense vectors |
-| Chroma | In-memory vector store for semantic retrieval |
+| Google Gemini Text Embeddings | Converts text chunks to dense vectors for semantic retrieval |
+| Google Multi-Modal Embeddings | Processes images, tables, and other multi-modal content |
+| Qdrant | Vector store for semantic retrieval and similarity search |
 | LCEL | Composes retrieval and generation pipelines |
 | ChatPromptTemplate | Constructs structured prompts for the LLM |
 | CohereRerank / FlashrankRerank | Re-scores retrieved chunks and selects the best match |
@@ -595,6 +614,9 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 | Service | Purpose |
 |---|---|
 | OpenAI GPT-4o / Groq | Primary LLM for answer generation and simplification |
+| Google AI (Gemini) | Text and multi-modal embeddings |
+| LlamaParse API | Document parsing with OCR capabilities |
+| Qdrant | Vector database for semantic search |
 | Tavily Search API | Web fallback for external legal context |
 | Streamlit | Chat interface framework |
 | Python-dotenv | Environment variable and API key management |
@@ -612,6 +634,7 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 | `retry_count` | int | Number of retrieval retries attempted (max 2) |
 | `web_search_results` | list | Results from Tavily when document has no answer |
 | `human_confirmed` | bool | True once user confirms clause during human review |
+| `web_search_confirmed` | bool | True once user confirms web search fallback |
 | `answer` | str | Generated LLM response |
 | `needs_clarification` | bool | True if user requests plain-English simplification |
 | `source` | str | "document" or "web" — displayed in UI |
@@ -622,7 +645,7 @@ Freelancers, tenants, new employees, small business owners, students, and anyone
 
 | Week | Focus | Deliverable |
 |---|---|---|
-| Week 1 | Project setup, PDF ingestion pipeline, chunking, embedding, Chroma vector store, basic RAG chain | Working retrieval chain that accepts a PDF and returns relevant clauses |
+| Week 1 | Project setup, PDF ingestion pipeline (LlamaParse with OCR), chunking, embedding (Gemini), Qdrant vector store, basic RAG chain | Working retrieval chain that accepts a PDF and returns relevant clauses |
 | Week 2 | LangGraph agent graph with all 8 nodes, conditional routing, retry logic, web search fallback, human-in-the-loop, conversation memory | Fully functional agent with state management and multi-turn memory |
 | Week 3 | Streamlit chat UI, source display, human review UI, end-to-end testing on real contracts, bug fixes, polish | Production-ready Streamlit app tested on real legal documents |
 

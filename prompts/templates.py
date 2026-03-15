@@ -3,7 +3,7 @@ Prompt Templates
 All prompt templates for the Legal Q&A pipeline
 """
 
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
 # Main Legal Q&A Prompt
 LEGAL_QA_PROMPT = ChatPromptTemplate.from_messages([
